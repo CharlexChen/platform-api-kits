@@ -10,9 +10,25 @@ import { TongYi_secret, generateTongYiUrl } from '../utils/tongyi-kit';
 const label = '[tongyi.service]';
 
 export class TongYiService extends GptChatBase {
+  constructor() {
+    super('tongyi');
+  }
+  /**
+   * [tongyi] generate url
+   * @returns 
+   */
+  generateUrl() {
+    return generateTongYiUrl();
+  }
+  /**
+   * 【tongyi】send chat data
+   * according for the docs of tongyi
+   * @param content 
+   * @returns 
+   */
   async sendData(content: TongYiInput) {
-    // HTTP请求
-    const url = generateTongYiUrl();
+    // http request
+    const url = this.generateUrl();
     const result = await axios.post(url, content, {
       headers: {
         'Content-Type': 'application/json',
@@ -20,7 +36,6 @@ export class TongYiService extends GptChatBase {
         Authorization: `Bearer ${TongYi_secret}`,
       },
     });
-    // console.log('>>>tongyi result', result);
     return result.data as unknown as TongYiOutput;
   }
   async sendChatData(

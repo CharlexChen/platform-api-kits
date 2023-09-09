@@ -8,9 +8,9 @@ import { XunFeiInput } from '../interface/xunfei';
 import {
   XunFei_APIAppid,
   XunFei_domain,
-  generateXunfeiUrl,
 } from '../utils/xunfei-kit';
 import WebSocket from 'ws';
+import { xunFeiAuth } from '../auth/xunfei.auth';
 
 const label = '[xunfei.ws.service]';
 
@@ -20,16 +20,23 @@ export class XunFeiWsService extends GptChatBase {
     super('xunfei');
     console.log('>>>', this.url);
   }
-  async getConnection() {
+  /**
+   * [xunfei] generate url
+   * @returns 
+   */
+  generateUrl() {
+    return xunFeiAuth.generateWsUrl();
+  }
+  private async getConnection() {
     // 连接WebSocket服务
     const socket: WebSocket = await new Promise((resolve) => {
-      const client = new WebSocket(generateXunfeiUrl());
+      const client = new WebSocket(this.generateUrl());
       client.on('open', () => {
         resolve(client);
       });
     });
 
-    // 监听WebSocket响应
+    // listen webSocket
     socket.on('message', (data: unknown) => {
       const res = JSON.parse(Buffer.from(data as never, 'utf-8').toString());
       if (res.header.code != 0) {
@@ -51,8 +58,8 @@ export class XunFeiWsService extends GptChatBase {
     });
     return socket;
   }
-  async waitForResponse() {
-    // 等待WebSocket响应
+  private async waitForResponse() {
+    // wait for WebSocket response
     while (this.status !== this.stopStatus) {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
@@ -67,6 +74,12 @@ export class XunFeiWsService extends GptChatBase {
       response,
     };
   }
+  /**
+   * 【xunfei】send chat data
+   * according for the docs of xunfei
+   * @param content 
+   * @returns 
+   */
   async sendData(
     content: XunFeiInput,
   ): Promise<XunFeiOutput & { response?: string }> {
@@ -81,13 +94,19 @@ export class XunFeiWsService extends GptChatBase {
     socket = null as never;
     return result;
   }
+  /**
+   * 【xunfei】send chat data
+   * according for current tool type
+   * @param data 
+   * @returns 
+   */
   async sendChatData(
     data: GPTChatCompletionInput,
   ): Promise<GPTChatCompletionOutput> {
     const result = await this.sendData({
       header: {
         app_id: XunFei_APIAppid as string,
-        uid: '1238989',
+        uid: 'kits',
       },
       parameter: {
         chat: {

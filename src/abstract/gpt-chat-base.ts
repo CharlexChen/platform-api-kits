@@ -5,9 +5,22 @@ import {
 
 export abstract class GptChatBase {
   protected model: string;
+  /**
+   * this url that communicate with the larger model
+   * @returns 
+   */
   protected url: string;
+  /**
+   * request type
+   */
   protected transferType: "http-json" | "websocket" | "http-sse";
+  /**
+   * the raw response
+   */
   protected responseRaw?: string;
+  /**
+   * websocket or http-sse concat the chunk
+   */
   protected responseChunk?: string;
   protected status?: number | string;
   protected stopStatus?: number | string;
