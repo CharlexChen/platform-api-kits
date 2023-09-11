@@ -16,20 +16,24 @@ const config = defineConfig([
       {
         dir: "dist/esm",
         format: "esm",
-        preserveModules: true, // 开启这个选项会将每个模块单独打包，有利于摇树优化
+        exports: "named", // 指定导出模式（自动、默认、命名、无）
+        preserveModules: false, // 保留模块结构
+        // preserveModulesRoot: "src", // 将保留的模块放在根级别的此路径下
       },
       {
         dir: "dist/cjs",
         format: "cjs",
-        preserveModules: true,
+        exports: "named", // 指定导出模式（自动、默认、命名、无）
+        preserveModules: false, // 保留模块结构
+        // preserveModulesRoot: "src", // 将保留的模块放在根级别的此路径下
       },
     ],
     plugins: [
+      resolve(),
+      commonjs(),
       typescript(),
       babelPlugin({ exclude: "**/node_modules/**" }),
       json(),
-      resolve(),
-      commonjs(),
     ],
   },
   // 打包类型声明
